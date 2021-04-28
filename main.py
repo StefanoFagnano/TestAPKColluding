@@ -7,9 +7,13 @@ from pathlib import Path
 from selenium.common.exceptions import ElementNotInteractableException
 
 TEST_APK_FOLDER = '/Users/stefanofagnano/PycharmProjects/TestAPKColluding/apk_trusted/'
-URL = 'http://192.168.1.23/upload_apk.html'
 
-INJECTIONS = {'injection':'code':'2', 'folder': 'imei', 'url': 'http://192.168.1.23/upload_apk.html'], []}
+
+INJECTIONS = {1: {'name': 'Device Info', 'code': 2, 'client': 'no', 'folder': 'IMEI', 'url': 'http://192.168.1.23/upload_apk.html'},
+              2: {'name': 'SMS', 'code': 3, 'client': 'no', 'folder': 'SMS', 'url': 'http://192.168.1.23/upload_apk.html'},
+              3: {'name': 'SOCKET', 'code': 3, 'client': 'client', 'folder': 'Socket',  'url': 'http://192.168.1.23/upload_apk.html'},
+              4: {'name': 'Device Info SOCKET', 'code': 5, 'client': 'no', 'folder': 'IMEI_Socket', 'url': 'http://192.168.1.23/second_attack.html'},
+              5: {'name': 'SMS SOCKET', 'code': 6, 'client': 'no', 'folder': 'SMS_SOCKET', 'url': 'http://192.168.1.23/second_attack.html'}}
 
 
 def get_project_root() -> Path:
@@ -48,6 +52,10 @@ def send_request(url, APKfile, injection, client, folder):
         driver.find_element_by_xpath("//select[@name='injection']/option[text()='IMEI']").click()
     if injection == 3:
         driver.find_element_by_xpath("//select[@name='injection']/option[text()='PHONE']").click()
+    if injection == 5:
+        driver.find_element_by_xpath("//select[@name='injection']/option[text()='IMEI']").click()
+    if injection == 6:
+        driver.find_element_by_xpath("//select[@name='injection']/option[text()='PHONE']").click()
     if 'client' in client:
         driver.find_element_by_id('client-checker').click()
     driver.find_element_by_id('sub-btn').click()
@@ -72,12 +80,12 @@ def send_request(url, APKfile, injection, client, folder):
 def test():
     list_apk = os.listdir(TEST_APK_FOLDER)  # dir is your directory path
     i = 0
-    for file in list_apk:
-        print(file+'APP NUMBER: '+str(i))
-        send_request(URL, file, 2, 'client', 'Client')
-        i = i+1
-
-
+    for injection in INJECTIONS:
+        print(INJECTIONS[injection]['name'])
+        for file in list_apk:
+            i = i + 1
+            print(file+' APP NUMBER: '+str(i))
+            send_request(INJECTIONS[injection]['url'], file, INJECTIONS[injection]['code'], INJECTIONS[injection]['client'], INJECTIONS[injection]['folder'])
 
 
 if __name__ == '__main__':
